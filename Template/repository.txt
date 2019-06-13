@@ -1,0 +1,23 @@
+package repository
+
+import (
+	// "github.com/gogo/protobuf/proto"
+	"log"
+	model "{provider-username}/{microservices}/model"
+	pb "{provider-username}/{microservices}/usecase"
+	// This is for ORM integration with Go
+	"github.com/jinzhu/gorm"
+)
+type {name} interface{}
+// Create Repository
+type Repository interface {
+	// Call methods
+	//
+}
+
+//
+type {Name}Repository struct {
+	Db *gorm.DB
+}
+
+// Call method example implmentation

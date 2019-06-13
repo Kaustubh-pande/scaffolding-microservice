@@ -1,0 +1,39 @@
+package server
+
+import (
+	"flag"
+	"fmt"
+	"net/http"
+
+	"context"
+
+	"{provider-username}/{microservices}/config"NOTE-replace string with config path.
+	gw "{provider-username}/{microservices}/usecase"NOTE-replace string with usecase path.
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"google.golang.org/grpc"
+)
+
+func StartRESTGateway(ctx context.Context, conf config.GatewayConfig) error {
+
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	fmt.Println("rest", conf)
+
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithInsecure()}
+
+	address := fmt.Sprintf("%s:%d", conf.Host, conf.Grpcport)
+	endpoint := flag.String("endpoint", address, "usecase address")
+
+	err := gw.Register{Name}ServiceHandlerFromEndpoint(ctx, mux, *endpoint, opts)//NOTE - REPLACE register service handlerfrom endpoint
+
+	if err != nil {
+		return err
+	}
+
+	server := fmt.Sprintf(":%d", conf.Port)
+
+	fmt.Println("Server started at port:", server)
+	return http.ListenAndServe(server, mux)
+}

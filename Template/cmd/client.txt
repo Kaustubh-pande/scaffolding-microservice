@@ -1,0 +1,20 @@
+package main
+
+import (
+	"fmt"
+	"log"
+
+	pb "{provider-username}/{microservices}/usecase"
+	"github.com/micro/go-grpc"
+	"context"
+)
+
+func main() {
+
+	service := grpc.NewService()
+	service.Init()
+	client := pb.New{Name}Service("sc.srv.{name}", service.Client())
+	//your logic
+
+
+}

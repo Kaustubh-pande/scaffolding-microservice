@@ -1,0 +1,17 @@
+package main
+
+import (
+	"{provider-username}/{microservices}/config"
+	"{provider-username}/{microservices}/server"
+	"context"
+)
+
+func init() {
+	config.Load()
+}
+
+func main() {
+	conf := config.Gateway()
+	ctx := context.Background()
+	server.StartRESTGateway(ctx, conf)
+}

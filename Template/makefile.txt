@@ -1,0 +1,29 @@
+GOPATH:=$(shell go env GOPATH)
+GOCMD=go
+GOBUILD=$(GOCMD) build
+PROTOCMD=protoc
+
+grpc:
+	# building grpc binary
+	$(GOBUILD) -o bin/grpc cmd/grpc/main.go
+rest:
+	# building rest gateway binary
+	$(GOBUILD) -o bin/rest cmd/rest/main.go
+proto:
+	# compiling protobuffer code:
+	$(PROTOCMD) --proto_path=api \
+	-I $(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+	--micro_out=./usecase \
+	--go_out=plugins=grpc:./usecase {name}.proto
+
+	# compiling rest gateway
+	$(PROTOCMD) --proto_path=api \
+	-I $(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+	--grpc-gateway_out=logtostderr=true,grpc_api_configuration=api/{name}.yaml:./usecase {name}.proto
+
+	# compiling open api info
+	$(PROTOCMD) --proto_path=api \
+	-I $(GOPATH)/src/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+	--swagger_out=logtostderr=true:./api {name}.proto
+
+	sed -i "" -e "s/Register{Name}ServiceHandler/Register{Name}ServiceMicroHandler/g" ./usecase/{name}.micro.go

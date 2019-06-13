@@ -1,0 +1,31 @@
+package server
+
+import (
+	"{provider-username}/{microservices}/middleware"//NOTE-if want replace string with middleware path.
+	usecase "{provider-username}/{microservices}/usecase"//NOTE-if want replace string with usecase path.
+	"github.com/micro/go-grpc"
+	micro "github.com/micro/go-micro"
+)
+
+func StartGRPCServer(impl usecase.{Name}ServiceHandler) (err error) {//replace Handlers
+
+	// Create a new service. Optionally include some options here.
+	srv := grpc.NewService(
+		micro.Name("sc.srv.{name}"),//ENTER NAME
+		//micro.RegisterTTL(time.Second*30),
+		//micro.RegisterInterval(time.Second*10),
+		// Middleware for error logging
+		micro.WrapHandler(middleware.Logger),
+	)
+
+	// Init will parse the command line flags.
+	srv.Init()
+
+    //ENTER REGISTER HANDLER BELOW
+
+	// Register handler
+    //example
+    usecase.Register{Name}ServiceMicroHandler(srv.Server(), impl)
+	return srv.Run()
+
+}
