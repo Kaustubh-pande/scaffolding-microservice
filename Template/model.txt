@@ -1,0 +1,17 @@
+package model
+
+import (
+	"fmt"
+
+	config " {provider-username}/{microservices}/config"//NOTE-replace string with config path.
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mssql"
+)
+
+
+func CreateConnection(conf config.DBConfig) (*gorm.DB, error) {
+	// MS SQL Connection string
+	connectionString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s",
+		conf.Host, conf.Username, conf.Password, conf.Port, conf.DbName)
+	return gorm.Open("mssql", connectionString)
+}

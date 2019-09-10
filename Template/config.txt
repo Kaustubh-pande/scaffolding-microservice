@@ -1,0 +1,73 @@
+package config
+
+import (
+	log "github.com/sirupsen/logrus"
+
+	"github.com/spf13/viper"
+)
+
+// GRPCConfig configuration settings for the GRPC server
+type GRPCConfig struct {
+	Host string
+	Port string
+}
+
+// Address address to host the grpc server
+func (conf *GRPCConfig) Address() string {
+	return conf.Host + ":" + conf.Port
+}
+
+// RESTGatewayConfig configuration settings for the REST gateway
+type RESTGatewayConfig struct {
+	Host     string
+	Port     string
+	GRPCPort string
+}
+
+// Address address to host the grpc server
+func (conf *RESTGatewayConfig) Address() string {
+	return conf.Host + ":" + conf.Port
+}
+
+type DBConfig struct {
+	Host     string
+	Port     string
+	Username string
+	Password string
+	DbName   string
+}
+
+// configuration settings
+type Config struct {
+	GRPC        GRPCConfig
+	RestGateway RESTGatewayConfig
+	DB          DBConfig
+	AWSCognito  CognitoConfig
+}
+
+func Load() *Config {
+	viper.SetConfigFile("./config.yaml")
+
+	// Searches for config file in given paths and read it
+	err := viper.ReadInConfig()
+	// setup some sane defaults
+	setDefaults()
+	if err != nil {
+		log.Panic("Error reading config file: ", err)
+	}
+	var config Config
+	err = viper.Unmarshal(&config)
+	if err != nil {
+		log.Panic("unable to decode into struct: ", err)
+	}
+	return &config
+}
+
+func setDefaults() {
+	viper.SetDefault("grpc.port", "8080")
+	viper.SetDefault("grpc.host", "localhost")
+
+	viper.SetDefault("restgateway.port", "9090")
+	viper.SetDefault("restgateway.host", "localhost")
+	viper.SetDefault("restgateway.grpcport", "8080")
+}

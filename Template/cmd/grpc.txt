@@ -1,0 +1,37 @@
+ package main
+
+ import (
+ 	log "github.com/sirupsen/logrus"
+ 	"{provider-username}/{microservices}/config"
+ 	"{provider-username}/{microservices}/repository"
+ 	"{provider-username}/{microservices}/server"
+ 	handler"{provider-username}/{microservices}/usecase/handler"
+ 	"{provider-username}/{microservices}/model"
+ 	logger "{provider-username}/{microservices}/middleware"
+ )
+
+
+ func init() {
+ 	config.Load()
+ 	logger.Setup()
+ }
+
+ func main() {
+ 	conf := config.Db()
+ 	// Creates a database connection and handles
+ 	// closing it again before exit.
+ 	db, err := model.CreateConnection(conf)
+ 	defer db.Close()
+
+ 	if err != nil {
+ 		log.Fatalf("Could not connect to DB: %v", err)
+ 	}
+
+ 	repository := &repository.{Name}Repository{Db: db,Conf:conf}
+ 	{name}Service := &handler.Service{Repo: repository}
+
+ 	// Run the server
+ 	if err := server.StartGRPCServer(conf,{name}Service); err != nil {
+ 		log.Fatalf("Could not start server: %v", err)
+ 	}
+ }

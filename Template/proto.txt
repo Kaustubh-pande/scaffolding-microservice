@@ -1,0 +1,8 @@
+syntax = 'proto3';
+package usecase;
+
+service {Name}Service { //change name of service
+
+}
+message {Name}{ //change name of a message
+}

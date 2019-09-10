@@ -1,0 +1,32 @@
+package server
+
+import (
+    "log"
+    "net"
+    "google.golang.org/grpc"
+    "google.golang.org/grpc/reflection"
+	"{provider-username}/{microservices}/config"//NOTE-if want replace string with middleware path.
+	usecase "{provider-username}/{microservices}/usecase"//NOTE-if want replace string with usecase path.
+
+)
+
+func StartGRPCServer(conf *config.Config,impl usecase.{Name}ServiceHandler)  {//replace Handlers
+
+	// Create a new service. Optionally include some options here.
+
+	lis, err := net.Listen("tcp", conf.GRPC.Address())
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	server := grpc.NewServer()
+
+	usecase.Register{Name}ServiceServer(server, impl)
+	reflection.Register(server)
+
+	log.Println("grpc listening on " + conf.GRPC.Address())
+
+	if err := server.Serve(lis); err != nil {
+		log.Fatalf("failed to server: %v", err)
+	}
+
+}

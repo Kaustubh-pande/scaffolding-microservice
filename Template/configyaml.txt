@@ -1,0 +1,13 @@
+database:
+  dbname: singlecare //DB NAME
+  host: qadb.singlecare.local //HOST NAME
+  password: //ENTER PASSWORD
+  port: 1433 //IF WANT TO CHANGE PORT
+  username: @rxsense.com //ENTER YOUSERNAME
+grpc:
+  host: localhost
+  port: 8000
+restgateway:
+  grpcport: 9090
+  host: localhost
+  port: 8080

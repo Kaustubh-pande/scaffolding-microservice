@@ -1,0 +1,12 @@
+package handler
+
+import (
+	context "context"
+    pb "bitbucket.org/rxsense/microservices-auth/usecase"
+	"{provider-username}/{microservices}/repository"
+)
+
+type Service struct {
+	Repo *repository.{Name}Repository
+}
+//WRITE METHODS HERE

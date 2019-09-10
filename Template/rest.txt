@@ -1,0 +1,52 @@
+package server
+
+import (
+	"context"
+    "log"
+    "net/http"
+    "os"
+    "os/signal"
+    "time"
+	"{provider-username}/{microservices}/config"NOTE-replace string with config path.
+	usecase "{provider-username}/{microservices}/usecase"NOTE-replace string with usecase path.
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"google.golang.org/grpc"
+)
+
+func StartRESTGateway(ctx context.Context, conf config.Config) {
+
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	fmt.Println("rest", conf)
+
+	mux := runtime.NewServeMux()
+	opts := []grpc.DialOption{grpc.WithInsecure()}
+
+
+
+	err := usecase.Register{Name}ServiceHandlerFromEndpoint(ctx, mux, conf.GRPC.Address(), opts)//NOTE - REPLACE register service handlerfrom endpoint
+
+	if err != nil {
+    		log.Fatalf("failed to start HTTP gateway: %v", err)
+    	}
+
+    	server := &http.Server{
+    		Addr:    conf.RestGateway.Address(),
+    		Handler: mux,
+    	}
+
+    	// graceful shutdown
+    	c := make(chan os.Signal, 1)
+    	signal.Notify(c, os.Interrupt)
+    	go func() {
+    		for range c {
+    			// sig is a ^C, handle it
+    		}
+    		_, cancel := context.WithTimeout(ctx, 5*time.Second)
+    		defer cancel()
+    		_ = server.Shutdown(ctx)
+    	}()
+    	log.Println("rest listening on " + conf.RestGateway.Address())
+    	server.ListenAndServe()
+}

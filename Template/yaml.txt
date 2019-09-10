@@ -1,0 +1,7 @@
+type: google.api.Service
+config_version: 3
+http:
+  rules:
+    - selector: usecase.{Name}Service.methodname //Your method name
+      post: /v1/example //Endpoint
+      body: "*"
