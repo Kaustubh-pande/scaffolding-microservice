@@ -9,4 +9,4 @@ This repository is for creating skelaton for Microservice application.
 
 	go build -o bin/main main.go
 	
-	./bin/main -path="Mentioned path where you want to create folder" -name="Name of microservice" -proto="Enter proto file name"
+	./bin/main -path="Mentioned path where you want to create folder" -name="Name of microservice" -proto="Enter proto file name -username="provider/username"
