@@ -2,7 +2,7 @@ package handler
 
 import (
 	context "context"
-    pb "bitbucket.org/rxsense/microservices-auth/usecase"
+    pb "{provider-username}/{microservices}/usecase"
 	"{provider-username}/{microservices}/repository"
 )
 
