@@ -4,7 +4,7 @@ This README would normally document whatever steps are necessary to get your app
 This repository is for creating skelaton for Microservice application.
 
 ### How do I get set up? ###
-1. Clone this repository
+1. go get "github.com/Kaustubh-pande/scaffolding-microservice"
 2. To Run this project follow below steps:
 
 	go build -o bin/main main.go
