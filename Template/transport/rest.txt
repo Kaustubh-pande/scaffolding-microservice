@@ -1,0 +1,87 @@
+package transport
+
+import (
+	"context"
+	"net"
+
+	"github.com/golang/protobuf/jsonpb"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	log "github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+)
+
+// ConfigRESTGateway configuration settings for the REST gateway
+type ConfigRESTGateway struct {
+	Host     string
+	Port     string
+	Protocol string
+	GRPCPort string
+	JSONPb   ConfigRESTGatewayJSONPb
+}
+
+type ConfigRESTGatewayJSONPb struct {
+	OrigName     bool
+	EmitDefaults bool
+	EnumsAsInts  bool
+	Indent       string
+	AnyResolver  jsonpb.AnyResolver
+}
+
+func newConfigRestGateway(host, port, protocol, grpcPort string, jsonPb ConfigRESTGatewayJSONPb) ConfigRESTGateway {
+	return ConfigRESTGateway{
+		Host:     host,
+		Port:     port,
+		Protocol: protocol,
+		GRPCPort: grpcPort,
+		JSONPb:   jsonPb,
+	}
+}
+
+// Address address to host the grpc server
+func (conf *ConfigRESTGateway) Address() string {
+	return net.JoinHostPort(conf.Host, conf.Port)
+}
+
+// URL url to host the grpc server
+func (conf *ConfigRESTGateway) URL() string {
+	return conf.Protocol + "://" + conf.Address()
+}
+
+// StartHTTPRESTGateway will start a rest gateway that transforms traffic from http/json to grpc and back.
+// The registration handler should be used to register the service created with grpc rest.
+// Example: usecase.RegisterMyServiceHandlerFromEndpoint(ctx, mux, grpcaddress, []grpc.DialOption{grpc.WithInsecure()})
+func startHTTPRESTGateway(
+	ctx context.Context,
+	conf ConfigRESTGateway,
+	registerHandler func(context.Context, *runtime.ServeMux, []grpc.DialOption) error,
+) <-chan struct{} {
+	//customizing rest gateway mux ref: https://grpc-ecosystem.github.io/grpc-gateway/docs/customizingyourgateway.html
+	mux := runtime.NewServeMux(
+		runtime.WithMarshalerOption(
+			runtime.MIMEWildcard,
+			&runtime.JSONPb{
+				OrigName:     conf.JSONPb.OrigName,
+				EmitDefaults: conf.JSONPb.EmitDefaults,
+				Indent:       conf.JSONPb.Indent,
+				EnumsAsInts:  conf.JSONPb.EnumsAsInts,
+				AnyResolver:  conf.JSONPb.AnyResolver,
+			}),
+		runtime.WithIncomingHeaderMatcher(asIsHeaderMatcher()), // overwrite default incoming header matcher
+	)
+
+	err := registerHandler(ctx, mux, []grpc.DialOption{grpc.WithInsecure()}) // registers the grpc gateway handler
+	if err != nil {
+		log.WithContext(ctx).Fatalf("failed to register rest gateway handler: %v", err)
+	}
+
+	return StartHTTP(ctx, ConfigHTTP{Address: conf.Address(), Handler: mux})
+}
+
+// asIsHeaderMatcher is used to pass http request headers to/from gRPC context.
+// This adds all HTTP header keys to gRPC context as is. That means that all headers
+// will be accessible in grpc context by the same key as they were sent in HTTP header.
+func asIsHeaderMatcher() func(key string) (string, bool) {
+	return func(key string) (string, bool) {
+		return key, true
+	}
+}
