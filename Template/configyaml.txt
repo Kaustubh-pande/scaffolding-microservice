@@ -1,9 +1,10 @@
 database:
-  dbname: singlecare //DB NAME
-  host: qadb.singlecare.local //HOST NAME
-  password: //ENTER PASSWORD
-  port: 1433 //IF WANT TO CHANGE PORT
-  username: @rxsense.com //ENTER YOUSERNAME
+  dbname: dbname                #DB NAME
+  host: Host                    #HOST NAME
+  password:                     #ENTER PASSWORD
+  port: 1433                    #IF WANT TO CHANGE PORT
+  username: username            #ENTER YOUSERNAME
+  type: mysql                   #DB TYPE [mssql/mysql]
 grpc:
   host: localhost
   port: 8000
