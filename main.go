@@ -76,6 +76,9 @@ func main() {
 	//Dockerfile
 	Createfile(microserviceName + "/" + "Dockerfile")
 	ReadWrite(TemplateFile+"Dockerfile.txt", microserviceName+"/"+"Dockerfile")
+	//Tool file
+	Createfile(microserviceName + "/" + "tool.go")
+	ReadWrite(TemplateFile+"tool.txt", microserviceName+"/"+"tool.go")
 	fmt.Println("Microservice Structure Created")
 }
 func Createmicroservice(microservicename string) {
