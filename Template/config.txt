@@ -10,6 +10,7 @@ import (
 type GRPCConfig struct {
 	Host string
 	Port string
+	Protocol string
 }
 
 // Address address to host the grpc server
@@ -21,6 +22,7 @@ func (conf *GRPCConfig) Address() string {
 type RESTGatewayConfig struct {
 	Host     string
 	Port     string
+	Protocol string
 	GRPCPort string
 }
 
@@ -35,6 +37,13 @@ type DBConfig struct {
 	Username string
 	Password string
 	DbName   string
+	Type	 string
+}
+
+type LoggingConfig struct {
+	Formatter LoggingFormatter
+	Level     LoggingLevel
+	Output    LoggingOutput
 }
 
 // configuration settings
@@ -42,25 +51,30 @@ type Config struct {
 	GRPC        GRPCConfig
 	RestGateway RESTGatewayConfig
 	DB          DBConfig
-	AWSCognito  CognitoConfig
+	Logging   LoggingConfig
 }
 
-func Load() *Config {
-	viper.SetConfigFile("./config.yaml")
+/ Load loads config file based on -config commandline flag.  default config will sit at ./config.yaml
+func Load(config Config) Config {
+	configPath := flag.String("config", "./config.yaml", "path to the configuration file")
+	flag.Parse()
+	return LoadFile(*configPath, config)
+}
 
-	// Searches for config file in given paths and read it
+// LoadFile loads loads config file into the config structure
+func LoadFile(path string, config Config) Config {
+	viper.SetConfigFile(path)
 	err := viper.ReadInConfig()
-	// setup some sane defaults
-	setDefaults()
 	if err != nil {
-		log.Panic("Error reading config file: ", err)
+		log.Panic("error:", err)
 	}
-	var config Config
+	// setup some sane defaults
+	config.SetDefaults()
 	err = viper.Unmarshal(&config)
 	if err != nil {
-		log.Panic("unable to decode into struct: ", err)
+		log.Panic("error:", err)
 	}
-	return &config
+	return config
 }
 
 func setDefaults() {
