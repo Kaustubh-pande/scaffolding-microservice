@@ -2,11 +2,19 @@ package handler
 
 import (
 	context "context"
+	"github.com/golang/protobuf/ptypes/empty"
+	"{provider-username}/{microservices}/config"
     pb "{provider-username}/{microservices}/usecase"
 	"{provider-username}/{microservices}/repository"
+	"errors"
 )
 
 type Service struct {
 	Repo *repository.{Name}Repository
+	Conf *config.Config
 }
+
 //WRITE METHODS HERE
+func (s Service) Methodname(context.Context, *empty.Empty) (*pb.Proto, error) {
+	return &pb.Proto{}, errors.New("error")
+}
