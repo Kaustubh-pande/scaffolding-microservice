@@ -54,7 +54,7 @@ type Config struct {
 	Logging   LoggingConfig
 }
 
-/ Load loads config file based on -config commandline flag.  default config will sit at ./config.yaml
+// Load loads config file based on -config commandline flag.  default config will sit at ./config.yaml
 func Load(config Config) Config {
 	configPath := flag.String("config", "./config.yaml", "path to the configuration file")
 	flag.Parse()
@@ -69,7 +69,7 @@ func LoadFile(path string, config Config) Config {
 		log.Panic("error:", err)
 	}
 	// setup some sane defaults
-	config.SetDefaults()
+	setDefaults()
 	err = viper.Unmarshal(&config)
 	if err != nil {
 		log.Panic("error:", err)

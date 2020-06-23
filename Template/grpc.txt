@@ -18,12 +18,11 @@ type ConfigGRPC struct {
 	ServerOptions []grpc.ServerOption
 }
 
-func newGRPCConfig(host, port, protocol string, serverOptions []grpc.ServerOption) ConfigGRPC {
+func newGRPCConfig(host, port, protocol string) ConfigGRPC {
 	return ConfigGRPC{
 		Host:          host,
 		Port:          port,
 		Protocol:      protocol,
-		ServerOptions: serverOptions,
 	}
 }
 

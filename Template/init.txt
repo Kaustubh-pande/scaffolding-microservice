@@ -9,11 +9,11 @@ import(
 )
 func Start(
 	ctx context.Context,
-	service *handler.Service,
+	service handler.Service,
 	grpcConfig config.GRPCConfig,
 	restConfig config.RESTGatewayConfig,
 ) (closed <-chan struct{}) {
-	grpcServer := startGrpcServer(ctx, service, grpcConfig)
+	grpcServer := startGrpcServer(ctx, &service, grpcConfig)
 	restServer := startRESTGateway(ctx, restConfig, grpcConfig.Address())
 
 	done := make(chan struct{})
@@ -26,7 +26,7 @@ func Start(
 	return done
 }
 
-func startGrpcServer(ctx context.Context, service handler.Service, grpcConfig config.GRPCConfig) <-chan struct{} {
+func startGrpcServer(ctx context.Context, service *handler.Service, grpcConfig config.GRPCConfig) <-chan struct{} {
 	setup := func(server *grpc.Server) {
 		usecase.Register{Name}ServiceServer(server, service)
 	}
@@ -35,10 +35,6 @@ func startGrpcServer(ctx context.Context, service handler.Service, grpcConfig co
 		grpcConfig.Host,
 		grpcConfig.Port,
 		grpcConfig.Protocol,
-		[]grpc.ServerOption{
-			middleware.StreamInterceptor(middleware.GetAllStream()...),
-			middleware.UnaryInterceptor(middleware.GetAllUnary()...),
-		},
 	)
 	return startGRPCServer(ctx, config, setup)
 }

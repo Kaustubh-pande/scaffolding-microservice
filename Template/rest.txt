@@ -3,7 +3,8 @@ package transport
 import (
 	"context"
 	"net"
-
+	"net/http"
+	"time"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	log "github.com/sirupsen/logrus"
@@ -74,8 +75,52 @@ func startHTTPRESTGateway(
 		log.WithContext(ctx).Fatalf("failed to register rest gateway handler: %v", err)
 	}
 
-	return StartHTTP(ctx, ConfigHTTP{Address: conf.Address(), Handler: mux})
+	return startHTTP(ctx, ConfigHTTP{Address: conf.Address(), Handler: mux})
 }
+
+
+type ConfigHTTP struct {
+	Address string
+	Handler http.Handler
+}
+
+func NewConfigHTTP(address string, handler http.Handler) ConfigHTTP {
+	return ConfigHTTP{
+		Address: address,
+		Handler: handler,
+	}
+}
+
+func startHTTP(
+	ctx context.Context,
+	conf ConfigHTTP,
+) <-chan struct{} {
+	done := make(chan struct{})
+
+	server := &http.Server{
+		Addr:    conf.Address,
+		Handler: conf.Handler,
+	}
+
+	go func() {
+		<-ctx.Done()
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := server.Shutdown(shutdownCtx); err != nil {
+			log.WithContext(shutdownCtx).Errorf("failed to graceful shutdown http server: %v", err)
+		}
+		done <- struct{}{}
+	}()
+	go func() {
+		log.WithContext(ctx).Println("http server listening on " + conf.Address)
+		if err := server.ListenAndServe(); err != nil {
+			log.WithContext(ctx).Fatalf("failed to serve http on %s: %v", conf.Address, err)
+		}
+	}()
+
+	return done
+}
+
 
 // asIsHeaderMatcher is used to pass http request headers to/from gRPC context.
 // This adds all HTTP header keys to gRPC context as is. That means that all headers

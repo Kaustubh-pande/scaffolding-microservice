@@ -6,7 +6,7 @@ import (
 	"{provider-username}/{microservices}/config"
     pb "{provider-username}/{microservices}/usecase"
 	"{provider-username}/{microservices}/repository"
-	"errors"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Service struct {
@@ -15,6 +15,6 @@ type Service struct {
 }
 
 //WRITE METHODS HERE
-func (s Service) Methodname(context.Context, *empty.Empty) (*pb.Proto, error) {
-	return &pb.Proto{}, errors.New("error")
+func (s Service) Methodname(context.Context, *empty.Empty) (*empty.Empty, error) {
+	return &emptypb.Empty{}, nil
 }

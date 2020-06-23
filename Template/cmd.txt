@@ -2,7 +2,8 @@ package main
 
 import (
 	"context"
-
+	"os"
+	"os/signal"
 	log "github.com/sirupsen/logrus"
 	"{provider-username}/{microservices}/config"
 	"{provider-username}/{microservices}/repository"
@@ -17,7 +18,7 @@ func main() {
 	defer cancel()
 
 	var conf config.Config
-	conf := config.Load(conf)
+	conf = config.Load(conf)
 	middleware.SetupLogrus(&conf.Logging)
 
 	db, err := model.CreateConnection(&conf.Database)
@@ -31,7 +32,7 @@ func main() {
 		DB: db,
 	}
 	var {name}Service usecase.{Name}ServiceServer
-	{name}Service = &handler.Service{
+	{name}Service = handler.Service{
 		Repo: repo,
 		Conf: &conf,
 	}
