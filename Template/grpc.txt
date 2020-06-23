@@ -1,4 +1,4 @@
-package server
+package transport
 
 import (
     "log"
@@ -6,27 +6,65 @@ import (
     "google.golang.org/grpc"
     "google.golang.org/grpc/reflection"
 	"{provider-username}/{microservices}/config"//NOTE-if want replace string with middleware path.
-	usecase "{provider-username}/{microservices}/usecase"//NOTE-if want replace string with usecase path.
 
 )
 
-func StartGRPCServer(conf *config.Config,impl usecase.{Name}ServiceHandler)  {//replace Handlers
+// ConfigGRPC configuration settings for a GRPC server
+type ConfigGRPC struct {
+	Host     string
+	Port     string
+	Protocol string
 
-	// Create a new service. Optionally include some options here.
+	ServerOptions []grpc.ServerOption
+}
 
-	lis, err := net.Listen("tcp", conf.GRPC.Address())
+func newGRPCConfig(host, port, protocol string) ConfigGRPC {
+	return ConfigGRPC{
+		Host:          host,
+		Port:          port,
+		Protocol:      protocol,
+	}
+}
+
+// Address address to host the grpc server
+func (conf *ConfigGRPC) Address() string {
+	return net.JoinHostPort(conf.Host, conf.Port)
+}
+
+// URL url to host the grpc server
+func (conf *ConfigGRPC) URL() string {
+	return conf.Protocol + "://" + conf.Address()
+}
+
+// StartGRPCServer this will start a grpc server with the specified host and port
+// registerHandler is where to register the grpc server
+func startGRPCServer(
+	ctx context.Context,
+	conf ConfigGRPC,
+	registerHandler func(*grpc.Server),
+) <-chan struct{} {
+	done := make(chan struct{})
+
+	lis, err := net.Listen("tcp", conf.Address())
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	server := grpc.NewServer()
+	server := grpc.NewServer(conf.ServerOptions...)
 
-	usecase.Register{Name}ServiceServer(server, impl)
+	registerHandler(server)
 	reflection.Register(server)
+	go func() {
+		<-ctx.Done()
+		server.GracefulStop()
+		done <- struct{}{}
+	}()
+	go func() {
+		log.Println("grpc listening on " + conf.Address())
+		if err := server.Serve(lis); err != nil {
+			log.Fatalf("failed to server: %v", err)
+		}
+	}()
 
-	log.Println("grpc listening on " + conf.GRPC.Address())
-
-	if err := server.Serve(lis); err != nil {
-		log.Fatalf("failed to server: %v", err)
-	}
-
+	return done
 }
+

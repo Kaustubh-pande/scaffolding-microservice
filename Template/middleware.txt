@@ -1,29 +1,109 @@
 package middleware
 
 import (
+	"io"
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
-// Setup initilize logrus logging
-// You can also use text formatter instead of json
-// log.SetFormatter(&log.TextFormatter{
-// 	DisableColors: true,
-// 	FullTimestamp: true,
-// })
-func Setup() {
-	// Log as JSON instead of the default ASCII formatter.
-	log.SetFormatter(&log.JSONFormatter{})
+// LoggingFormatter enum to specify the formatter to use for logging
+type LoggingFormatter string
 
-	// Output to stdout instead of the default stderr
-	// Can be any io.Writer, see below for File example
-	log.SetOutput(os.Stdout)
+// LoggingLevel enum to specify the level to use for logging
+type LoggingLevel string
 
-	// Only log the warning severity or above.
-	// See different Log level https://github.com/sirupsen/logrus#level-logging
-	log.SetLevel(log.WarnLevel)
+// LoggingOutput enum to specify the output to use for logging
+type LoggingOutput string
 
-	// Set this to true If you wish to add the calling method as a field
-	log.SetReportCaller(false)
+const (
+	// LoggingFormatterJSON json formatter
+	LoggingFormatterJSON = LoggingFormatter("json")
+	// LoggingFormatterText text formatter
+	LoggingFormatterText = LoggingFormatter("text")
+
+	// LoggingLevelPanic log on panics
+	LoggingLevelPanic = LoggingLevel("panic")
+	// LoggingLevelFatal log on fatal
+	LoggingLevelFatal = LoggingLevel("fatal")
+	// LoggingLevelError log on error or greater sevarity
+	LoggingLevelError = LoggingLevel("error")
+	// LoggingLevelWarn log on warn or greater sevarity
+	LoggingLevelWarn = LoggingLevel("warn")
+	// LoggingLevelInfo log on info or greater sevarity
+	LoggingLevelInfo = LoggingLevel("info")
+	// LoggingLevelDebug log on debug or greater sevarity
+	LoggingLevelDebug = LoggingLevel("debug")
+	// LoggingLevelTrace log on trace or greater sevarity
+	LoggingLevelTrace = LoggingLevel("trace")
+
+	// LoggingOutputStdErr logs to stderr
+	LoggingOutputStdErr = LoggingOutput("stderr")
+	// LoggingOutputStdOut logs to stdout
+	LoggingOutputStdOut = LoggingOutput("stdout")
+)
+
+// LoggingConfig provides a way to import logging settings
+type LoggingConfig struct {
+	Formatter LoggingFormatter
+	Level     LoggingLevel
+	Output    LoggingOutput
+}
+
+// LogrusLevel returns a level that logrus can use for setting the level
+func (conf LoggingConfig) LogrusLevel() logrus.Level {
+	switch conf.Level {
+	case LoggingLevelPanic:
+		return logrus.PanicLevel
+	case LoggingLevelFatal:
+		return logrus.FatalLevel
+	case LoggingLevelError:
+		return logrus.ErrorLevel
+	case LoggingLevelWarn:
+		return logrus.WarnLevel
+	case LoggingLevelInfo:
+		return logrus.InfoLevel
+	case LoggingLevelDebug:
+		return logrus.DebugLevel
+	case LoggingLevelTrace:
+		return logrus.TraceLevel
+	}
+	panic(conf.Level + " is not a valid log level")
+}
+
+// LogrusFormatter will return a formatter for logrus
+func (conf LoggingConfig) LogrusFormatter() logrus.Formatter {
+	switch conf.Formatter {
+	case LoggingFormatterJSON:
+		return &logrus.JSONFormatter{}
+	case LoggingFormatterText:
+		return &logrus.TextFormatter{}
+	}
+	panic(conf.Level + " is not a valid log level")
+}
+
+// LogrusOutput will return a writer for logging
+func (conf LoggingConfig) LogrusOutput() io.Writer {
+	switch conf.Output {
+	case LoggingOutputStdOut:
+		return os.Stdout
+	case LoggingOutputStdErr:
+		return os.Stderr
+	}
+	panic(conf.Level + " is not a valid outyput setting")
+}
+
+// SetupLogrus will configure logrus based on project yaml settings
+func SetupLogrus(conf *LoggingConfig) {
+	logrus.SetFormatter(conf.LogrusFormatter())
+	logrus.SetLevel(conf.LogrusLevel())
+	logrus.SetOutput(conf.LogrusOutput())
+}
+
+// PopulateLoggingConfigDefaults sets defaults for logrus
+func PopulateLoggingConfigDefaults() {
+	viper.SetDefault("logging.formatter", "json")
+	viper.SetDefault("logging.level", "info")
+	viper.SetDefault("logging.output", "stdout")
 }

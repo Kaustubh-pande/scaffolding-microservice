@@ -2,16 +2,69 @@ package model
 
 import (
 	"fmt"
-
+	"context"
+	"errors"
+    "time"
 	config " {provider-username}/{microservices}/config"//NOTE-replace string with config path.
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mssql"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 
+//By using CreateConnection function you can for creating connection between database
 func CreateConnection(conf config.DBConfig) (*gorm.DB, error) {
-	// MS SQL Connection string
-	connectionString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s",
-		conf.Host, conf.Username, conf.Password, conf.Port, conf.DbName)
-	return gorm.Open("mssql", connectionString)
+	//Mentoined you databases
+	if !(conf.Type == stdconfig.DatabaseTypeMYSQL || conf.Type == stdconfig.DatabaseTypeMSSQL) {
+		return nil, errors.New("unsupported database type")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
+	defer cancel()
+
+	conn := make(chan *gorm.DB)
+
+	go connectWithRetries(ctx, conf, conn)
+
+	select {
+	case db := <-conn:
+		return db, nil
+	case <-ctx.Done():
+		return nil, errors.New("unable to create database: timeout")
+	}
+}
+
+func connectWithRetries(ctx context.Context, dbConfig config.DBConfig, conn chan *gorm.DB) {
+	t := time.NewTicker(time.Millisecond * 100)
+	defer t.Stop()
+	defer close(conn)
+
+	iteration := 0
+
+	for {
+		select {
+		case <-t.C:
+			switch dbConfig.Type {
+			case stdconfig.DatabaseTypeMSSQL:
+				db, err := gorm.Open("mssql", dbConfig.MSSQLConnectionURI())
+				if err == nil {
+					conn <- db
+					return
+				}
+
+				log.WithContext(ctx).Warnf("unable to connect try no: %d: %v", iteration, err)
+			case stdconfig.DatabaseTypeMYSQL:
+				db, err := gorm.Open("mysql", dbConfig.MYSQLConnectionURI()+"?parseTime=true")
+				if err == nil {
+					conn <- db
+					return
+				}
+
+				log.WithContext(ctx).Warnf("unable to connect try no: %d with error %v", iteration, err)
+			}
+		case <-ctx.Done():
+			return
+		}
+		iteration++
+	}
 }

@@ -1,0 +1,8 @@
+FROM alpine
+RUN apk add --no-cache ca-certificates libc6-compat
+COPY ./bin/service /app/
+COPY ./config.yaml /app/config.yaml
+WORKDIR /app
+EXPOSE 8080
+EXPOSE 8000
+CMD ["./service"]

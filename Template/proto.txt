@@ -1,8 +1,13 @@
 syntax = 'proto3';
 package usecase;
 
-service {Name}Service { //change name of service
+import "google/protobuf/empty.proto";
 
+service {Name}Service { // Change name of service
+    // Implement service method
+   rpc methodname(google.protobuf.Empty) returns ({Name}){}
 }
-message {Name}{ //change name of a message
+
+message {Name} { // Change name of a message
+    // Fill message attributes
 }
