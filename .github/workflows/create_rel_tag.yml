@@ -31,10 +31,9 @@ jobs:
       runs-on: ubuntu-latest
       outputs:
         changelog: ${{ steps.build_changelog.outputs.changelog }}
-  
+      env:
+        old_tag: ${{ needs.fetch-tag.outputs.old_tag }} 
       steps:
-        - env:
-            old_tag: ${{ needs.fetch-tag.outputs.old_tag }}
         - name: Checkout
           uses: actions/checkout@v2
         - name: changelog print old tag
@@ -52,13 +51,13 @@ jobs:
         name: Release
         needs: [changelog,fetch-tag]
         runs-on: ubuntu-latest
+        env:
+          changelog: ${{ needs.changelog.outputs.changelog }}
+          old_tag: ${{ needs.fetch-tag.outputs.old_tag }}
     
         steps:
           - name: Checkout
             uses: actions/checkout@v2
-          - env:
-              changelog: ${{ needs.changelog.outputs.changelog }}
-              old_tag: ${{ needs.fetch-tag.outputs.old_tag }}
           - name: Generate Release Notes
             run: echo ${{ env.changelog }}
           - name: Create Release
