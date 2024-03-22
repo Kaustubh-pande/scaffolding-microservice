@@ -54,12 +54,11 @@ jobs:
         runs-on: ubuntu-latest
     
         steps:
+          - name: Checkout
+            uses: actions/checkout@v2
           - env:
               changelog: ${{ needs.changelog.outputs.changelog }}
               old_tag: ${{ needs.fetch-tag.outputs.old_tag }}
-
-          - name: Checkout
-            uses: actions/checkout@v2
           - name: Generate Release Notes
             run: echo ${{ env.changelog }}
           - name: Create Release
