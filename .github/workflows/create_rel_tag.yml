@@ -46,7 +46,8 @@ jobs:
             toTag:  ${{ github.event.inputs.tag_name }}
             token: ${{ github.TOKEN }}
         - name: print_output
-          run: echo "Changelog output:" ${{ steps.build_changelog.outputs }}
+          run: echo "${{ toJson(steps.build_changelog.outputs) }}"
+ #echo "Changelog output:" ${{ steps.build_changelog.outputs }}
 
 
           
@@ -70,7 +71,7 @@ jobs:
               tag_name: ${{ github.event.inputs.tag_name }}
               prerelease: false
               draft: false
-              #files: bin/*
+              files: bin/*
               generate_release_notes: true
               name: ${{ github.event.inputs.tag_name }}
               body: |
