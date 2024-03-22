@@ -1,4 +1,4 @@
-name: Create Tag and Release
+name: Create Tag and Release changelog
 
 on:
   workflow_dispatch:
