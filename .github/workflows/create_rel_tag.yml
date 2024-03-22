@@ -43,21 +43,25 @@ jobs:
           id: build_changelog
           uses: mikepenz/release-changelog-builder-action@v4
           with:
-            fromTag: ${{ needs.fetch-tag.outputs.old_tag }} #${{ needs.fetch-tag.get_tag.outputs.old_tag_name }}
+            fromTag: ${{ needs.fetch-tag.outputs.old_tag }}
             toTag:  ${{ github.event.inputs.tag_name }}
             token: ${{ github.TOKEN }}
        
       
    release:
         name: Release
-        needs: [changelog]
+        needs: [changelog,fetch-tag]
         runs-on: ubuntu-latest
     
         steps:
+          - env:
+              changelog: ${{ needs.changelog.outputs.changelog }}
+              old_tag: ${{ needs.fetch-tag.outputs.old_tag }}
+
           - name: Checkout
             uses: actions/checkout@v2
           - name: Generate Release Notes
-            run: echo ${{ needs.changelog.outputs.changelog }}
+            run: echo ${{ env.changelog }}
           - name: Create Release
             uses: softprops/action-gh-release@v1
             with:
@@ -71,6 +75,6 @@ jobs:
               body: |
                 ## What's Changed
                 ### abcd/ABCD
-                https://github.com/Kaustubh-pande/scaffolding-microservice/releases/tags/${{ needs.fetch-tag.get_tag.outputs.old_tag_name }}
+                https://github.com/Kaustubh-pande/scaffolding-microservice/releases/tags/${{ env.old_tag }}
                 ### xyz/XYZ
                 ${{ needs.changelog.outputs.changelog }}
