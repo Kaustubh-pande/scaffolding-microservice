@@ -36,7 +36,8 @@ jobs:
       steps:
         - name: Checkout
           uses: actions/checkout@v2
-  
+        - name: changelog print old tag
+          run: echo  "old_tag is ${{ needs.fetch-tag.get_tag.outputs.old_tag_name }}"
         - name: Build Changelog
           id: build_changelog
           uses: mikepenz/release-changelog-builder-action@v4
