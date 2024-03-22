@@ -27,7 +27,7 @@ jobs:
   
    changelog:
       name: Build Changelog
-      needs: fetch-tag
+      needs: [fetch-tag]
       runs-on: ubuntu-latest
       outputs:
         changelog: ${{ steps.build_changelog.outputs.changelog }}
