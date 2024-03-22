@@ -44,6 +44,7 @@ jobs:
             fromTag:  ${{ needs.fetch-tag.get_tag.outputs.old_tag_name }}
             toTag:  ${{ github.event.inputs.tag_name }}
             token: ${{ github.TOKEN }}
+       
       
    release:
         name: Release
@@ -53,7 +54,8 @@ jobs:
         steps:
           - name: Checkout
             uses: actions/checkout@v2
-    
+          - name: Generate Release Notes
+            run: echo "Release notes: ${{ needs.changelog.outputs.changelog }}"
           - name: Create Release
             uses: softprops/action-gh-release@v1
             with:
@@ -68,8 +70,5 @@ jobs:
                 ## What's Changed
                 ### abcd/ABCD
                 https://github.com/Kaustubh-pande/scaffolding-microservice/releases/tags/${{ needs.fetch-tag.get_tag.outputs.old_tag_name }}
-                <details>
-                  ### xyz/XYZ
-    
+                ### xyz/XYZ
                 ${{ needs.changelog.outputs.changelog }}
-                </details>
