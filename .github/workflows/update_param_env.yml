@@ -1,8 +1,10 @@
 name: Update Params.env with New Release Tags
 
+# Trigger the create release workflow
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   update-params-env:
