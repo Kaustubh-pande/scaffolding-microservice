@@ -102,8 +102,7 @@ jobs:
       
           - name: Update params.env with new release version
             run: |     
-              updated_content=$(echo "${{ steps.read_params_env.outputs.params_env }}" | sed -i 's|:v[0-9.]*\b|:${{ github.event.inputs.tag_name }}|gm')
-              echo "$updated_content" > config/params.env
+              sed -i 's|:v[0-9.]*\b|:${{ github.event.inputs.tag_name }}|gm' config/params.env)
           - name: Commit changes
             run: |
               git config --global user.email "github-actions@github.com"
