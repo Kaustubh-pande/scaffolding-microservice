@@ -102,7 +102,7 @@ jobs:
       
           - name: Update params.env with new release version
             run: |
-              sed -i "s/:v[0-9.]*$/:${{ steps.get_release_version.outputs.release_version }}/g" config/params.env
+              sed -i "s|:v[0-9.]*$|:${{ steps.get_release_version.outputs.release_version }}|g" config/params.env
       
           - name: Commit changes
             run: |
