@@ -102,8 +102,23 @@ jobs:
       
           - name: Update params.env with new release version
             run: |
-              updated_content=$(echo "${{ steps.read_params_env.outputs.params_env }}" | sed "s|\(:v[0-9.]*\)\b|\1:${{ github.event.inputs.tag_name }}|g")
+              
+              
+              # Replace the tag version with the new release version
+              updated_content=$(echo "${{ steps.read_params_env.outputs.params_env }}" | while IFS= read -r line; do
+                  # Check if the line contains the tag pattern
+                  if [[ $line =~ :v[0-9.]*$ ]]; then
+                      # Replace the tag pattern with the new release version
+                      echo "${line/:v[0-9.]*/:${{ steps.get_release_version.outputs.release_version }}}"
+                  else
+                      # Keep the line unchanged
+                      echo "$line"
+                  fi
+              done)
+              
+              # Write the updated content back to params.env
               echo "$updated_content" > config/params.env
+
       
           - name: Commit changes
             run: |
