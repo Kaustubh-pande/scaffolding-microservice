@@ -1,0 +1,36 @@
+name: Update Params.env with New Release Tags
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-params-env:
+    runs-on: ubuntu-latest
+    outputs:
+      param_env: ${{ steps.read_params_env.outputs.params_env }}
+      release_version: ${{ steps.get_release_version.outputs.release_version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Read params.env
+        id: read_params_env
+        run: |
+          echo "params_env=$(cat rootdir/abc/xyz/params.env)" >> $GITHUB_OUTPUT
+
+      - name: Read release version
+        id: get_release_version
+        run: echo "release_version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Update params.env with new release version
+        run: |
+          sed -i "s/:v[0-9.]*$/:${{ steps.get_release_version.outputs.release_version }}/g" rootdir/abc/xyz/params.env
+
+      - name: Commit changes
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add rootdir/abc/xyz/params.env
+          git commit -m "Update params.env with new release tags [${{ steps.get_release_version.outputs.release_version }}]"
+          git push
