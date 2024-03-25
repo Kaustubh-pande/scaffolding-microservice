@@ -102,7 +102,7 @@ jobs:
       
           - name: Update params.env with new release version
             run: |
-              updated_content=$(echo "${{ steps.read_params_env.outputs.params_env }}" | sed "s/:v[0-9.]*$/:${{ steps.get_release_version.outputs.release_version }}/g")
+              updated_content=$(echo "${{ steps.read_params_env.outputs.params_env }}" | sed "s|:v[0-9.]*$|:${{ github.event.inputs.tag_name }}|g")
               echo "$updated_content" > config/params.env
       
           - name: Commit changes
