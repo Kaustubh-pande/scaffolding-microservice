@@ -1,75 +1,75 @@
-name: Create Tag and Release
+# name: Create Tag and Release
 
-on:
-  workflow_dispatch:
-    inputs:
-      tag_name:
-        description: 'Tag name for the new release'
-        required: true
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       tag_name:
+#         description: 'Tag name for the new release'
+#         required: true
 
-permissions:
-  contents: write
-  packages: write
-  pull-requests: write
+# permissions:
+#   contents: write
+#   packages: write
+#   pull-requests: write
 
-jobs:
-   fetch-tag:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+# jobs:
+#    fetch-tag:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
       
-      - name: Get latest tag
-        id: get_tag
-        run: echo ::set-output name=old_tag_name::$(git ls-remote --tags origin | awk -F"/" '{print $3}' | grep -v '{}' | sort -V | tail -n1)
+#       - name: Get latest tag
+#         id: get_tag
+#         run: echo ::set-output name=old_tag_name::$(git ls-remote --tags origin | awk -F"/" '{print $3}' | grep -v '{}' | sort -V | tail -n1)
       
-      - name: Use latest tag
-        run: echo "Latest tag is ${{ steps.get_tag.outputs.old_tag_name }}"
+#       - name: Use latest tag
+#         run: echo "Latest tag is ${{ steps.get_tag.outputs.old_tag_name }}"
   
-   changelog:
-      name: Build Changelog
-      needs: fetch-tag
-      runs-on: ubuntu-latest
-      outputs:
-        changelog: ${{ steps.build_changelog.outputs.changelog }}
+#    changelog:
+#       name: Build Changelog
+#       needs: fetch-tag
+#       runs-on: ubuntu-latest
+#       outputs:
+#         changelog: ${{ steps.build_changelog.outputs.changelog }}
   
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v2
-        - name: changelog print old tag
-          run: echo  "old_tag is ${{ needs.fetch-tag.get_tag.outputs.old_tag_name }}"
-        - name: Build Changelog
-          id: build_changelog
-          uses: mikepenz/release-changelog-builder-action@v4
-          with:
-            fromTag:  ${{ needs.fetch-tag.get_tag.outputs.old_tag_name }}
-            toTag:  ${{ github.event.inputs.tag_name }}
-            token: ${{ github.TOKEN }}
+#       steps:
+#         - name: Checkout
+#           uses: actions/checkout@v2
+#         - name: changelog print old tag
+#           run: echo  "old_tag is ${{ needs.fetch-tag.get_tag.outputs.old_tag_name }}"
+#         - name: Build Changelog
+#           id: build_changelog
+#           uses: mikepenz/release-changelog-builder-action@v4
+#           with:
+#             fromTag:  ${{ needs.fetch-tag.get_tag.outputs.old_tag_name }}
+#             toTag:  ${{ github.event.inputs.tag_name }}
+#             token: ${{ github.TOKEN }}
        
       
-   release:
-        name: Release
-        needs: changelog
-        runs-on: ubuntu-latest
+#    release:
+#         name: Release
+#         needs: changelog
+#         runs-on: ubuntu-latest
     
-        steps:
-          - name: Checkout
-            uses: actions/checkout@v2
-          - name: Generate Release Notes
-            run: echo "Release notes: ${{ needs.changelog.outputs.changelog }}"
-          - name: Create Release
-            uses: softprops/action-gh-release@v1
-            with:
-              token: ${{ github.TOKEN }}
-              tag_name: ${{ github.event.inputs.tag_name }}
-              prerelease: false
-              draft: false
-              #files: bin/*
-              generate_release_notes: true
-              name: ${{ github.event.inputs.tag_name }}
-              body: |
-                ## What's Changed
-                ### abcd/ABCD
-                https://github.com/Kaustubh-pande/scaffolding-microservice/releases/tags/${{ needs.fetch-tag.get_tag.outputs.old_tag_name }}
-                ### xyz/XYZ
-                ${{ needs.changelog.outputs.changelog }}
+#         steps:
+#           - name: Checkout
+#             uses: actions/checkout@v2
+#           - name: Generate Release Notes
+#             run: echo "Release notes: ${{ needs.changelog.outputs.changelog }}"
+#           - name: Create Release
+#             uses: softprops/action-gh-release@v1
+#             with:
+#               token: ${{ github.TOKEN }}
+#               tag_name: ${{ github.event.inputs.tag_name }}
+#               prerelease: false
+#               draft: false
+#               #files: bin/*
+#               generate_release_notes: true
+#               name: ${{ github.event.inputs.tag_name }}
+#               body: |
+#                 ## What's Changed
+#                 ### abcd/ABCD
+#                 https://github.com/Kaustubh-pande/scaffolding-microservice/releases/tags/${{ needs.fetch-tag.get_tag.outputs.old_tag_name }}
+#                 ### xyz/XYZ
+#                 ${{ needs.changelog.outputs.changelog }}
