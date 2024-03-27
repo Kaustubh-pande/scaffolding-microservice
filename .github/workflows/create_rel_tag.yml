@@ -24,16 +24,18 @@ jobs:
       - name: Get latest tag
         id: get_tag
         run: | 
-          echo "old_tag_name=$(git ls-remote --tags origin | awk -F"/" '{print $3}' | grep -v '{}' | sort -V | tail -n1)" >> $GITHUB_OUTPUT
-          echo $old_tag_name
+          echo "old_tag_name=$(git ls-remote --tags origin | awk -F"/" '{print $3}' | grep -v '{}' | sort -V | tail -n1)" >> $GITHUB_ENV
+          echo "${old_tag_name}"
       - name: print tag
-        id: print
-        run: ${{ steps.fetch-tag.outputs.old_tag }}
+        id: print_tag
+        run: | 
+          echo "Old Tag: ${{ steps.get_tag.outputs.old_tag_name }}"
+        
       - name: Compare tags
         id: compare_tags
         run: |
          run: |
-          latest_tag=${{ steps.fetch-tag.outputs.old_tag }}
+          latest_tag=${{ steps.get_tag.outputs.old_tag_name }}
           new_tag=v0.0.2
           echo "Latest Tag: $latest_tag"
           echo "New Tag: $new_tag"
