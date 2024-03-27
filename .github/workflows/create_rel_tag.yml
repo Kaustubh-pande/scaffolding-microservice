@@ -34,9 +34,8 @@ jobs:
       - name: Compare tags
         id: compare_tags
         run: |
-         run: |
           latest_tag=${{ steps.get_tag.outputs.old_tag_name }}
-          new_tag=v0.0.2
+          new_tag=${{ github.event.inputs.tag_name }}
           echo "Latest Tag: $latest_tag"
           echo "New Tag: $new_tag"
           node -e "const latestMajor = parseInt(process.env.LATEST_TAG.substring(1).split('.')[0]); const latestMinor = parseInt(process.env.LATEST_TAG.substring(1).split('.')[1]); const latestPatch = parseInt(process.env.LATEST_TAG.substring(1).split('.')[2]); const newMajor = parseInt(process.env.NEW_TAG.substring(1).split('.')[0]); const newMinor = parseInt(process.env.NEW_TAG.substring(1).split('.')[1]); const newPatch = parseInt(process.env.NEW_TAG.substring(1).split('.')[2]); if (latestMajor > newMajor || (latestMajor === newMajor && latestMinor > newMinor) || (latestMajor === newMajor && latestMinor === newMinor && latestPatch >= newPatch)) { console.log('Error: New tag is not greater than the latest tag.'); process.exit(1); }"
