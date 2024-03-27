@@ -40,7 +40,8 @@ jobs:
             echo "Error: Tag '${{ env.NEW_TAG }}' already exists."
             exit 1
           fi
-      
+        shell: bash
+
       - name: Validate if new tag is greater than latest tag
         run: |
           const latestMajor = parseInt(process.env.LATEST_TAG.substring(1).split('.')[0]);
