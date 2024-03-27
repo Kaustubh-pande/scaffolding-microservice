@@ -30,16 +30,30 @@ jobs:
         id: print_tag
         run: | 
           echo "Old Tag: ${{ steps.get_tag.outputs.old_tag_name }}"
+          echo "LATEST_TAG=${{ steps.get_tag.outputs.old_tag_name }}" >> $GITHUB_ENV
+          echo "NEW_TAG=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
         
-      - name: Compare tags
-        id: compare_tags
+      - name: Check if new tag already exists
+        id: check_tag
         run: |
-          latest_tag=${{ steps.get_tag.outputs.old_tag_name }}
-          new_tag=${{ github.event.inputs.tag_name }}
-          echo "Latest Tag: $latest_tag"
-          echo "New Tag: $new_tag"
-          node -e "const latestMajor = parseInt(process.env.LATEST_TAG.substring(1).split('.')[0]); const latestMinor = parseInt(process.env.LATEST_TAG.substring(1).split('.')[1]); const latestPatch = parseInt(process.env.LATEST_TAG.substring(1).split('.')[2]); const newMajor = parseInt(process.env.NEW_TAG.substring(1).split('.')[0]); const newMinor = parseInt(process.env.NEW_TAG.substring(1).split('.')[1]); const newPatch = parseInt(process.env.NEW_TAG.substring(1).split('.')[2]); if (latestMajor > newMajor || (latestMajor === newMajor && latestMinor > newMinor) || (latestMajor === newMajor && latestMinor === newMinor && latestPatch >= newPatch)) { console.log('Error: New tag is not greater than the latest tag.'); process.exit(1); }"
- 
+          if git rev-parse ${{ env.NEW_TAG }} >/dev/null 2>&1; then
+            echo "Error: Tag '${{ env.NEW_TAG }}' already exists."
+            exit 1
+          fi
+      
+      - name: Validate if new tag is greater than latest tag
+        run: |
+          const latestMajor = parseInt(process.env.LATEST_TAG.substring(1).split('.')[0]);
+          const latestMinor = parseInt(process.env.LATEST_TAG.substring(1).split('.')[1]);
+          const latestPatch = parseInt(process.env.LATEST_TAG.substring(1).split('.')[2]);
+          const newMajor = parseInt(process.env.NEW_TAG.substring(1).split('.')[0]);
+          const newMinor = parseInt(process.env.NEW_TAG.substring(1).split('.')[1]);
+          const newPatch = parseInt(process.env.NEW_TAG.substring(1).split('.')[2]);
+          if (latestMajor > newMajor || (latestMajor === newMajor && latestMinor > newMinor) || (latestMajor === newMajor && latestMinor === newMinor && latestPatch >= newPatch)) {
+            console.log('Error: New tag is not greater than the latest tag.');
+            process.exit(1);
+          }
+    
    update-params-env:
         runs-on: ubuntu-latest
         needs: fetch-tag
