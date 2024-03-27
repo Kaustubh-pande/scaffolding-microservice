@@ -40,6 +40,7 @@ jobs:
             echo "Error: Tag '${{ env.NEW_TAG }}' already exists."
             exit 1
           fi
+        continue-on-error: false
         shell: bash
       - name: Handle Failure
         if: failure()
