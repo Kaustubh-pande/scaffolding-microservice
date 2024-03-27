@@ -33,7 +33,7 @@ jobs:
         id: compare_tags
         run: |
          run: |
-          latest_tag="$GITHUB_OUTPUT"
+          latest_tag=${{ steps.fetch-tag.outputs.old_tag }}
           new_tag=v0.0.2
           echo "Latest Tag: $latest_tag"
           echo "New Tag: $new_tag"
