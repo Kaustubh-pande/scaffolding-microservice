@@ -36,12 +36,13 @@ jobs:
       - name: Check if new tag already exists
         id: check_tag
         run: |
-          if git rev-parse ${{ env.NEW_TAG }} >/dev/null 2>&1; then
-            echo "Error: Tag '${{ env.NEW_TAG }}' already exists."
+          if git rev-parse ${{ github.event.inputs.tag_name }} >/dev/null 2>&1; then
+            echo "Error: Tag '${{ github.event.inputs.tag_name }}' already exists."
             exit 1
           fi
         continue-on-error: false
         shell: bash
+        
       - name: Handle Failure
         if: failure()
         run: |
@@ -57,6 +58,9 @@ jobs:
         steps:
           - name: Checkout code
             uses: actions/checkout@v4
+            with:
+              ref: ${{ needs.fetch-tag.outputs.old_tag }}
+
       
           - name: Read params.env
             id: read_params_env
@@ -75,8 +79,9 @@ jobs:
               git config --global user.email "github-actions@github.com"
               git config --global user.name "GitHub Actions"
               git add config/params.env
-              git commit -m "Update params.env with new release tags [$${{ github.event.inputs.tag_name }}]"
-              git push
+              git commit -m "prepare for release and update params"
+              git tag -a -m "Tag for release: ${{ github.event.inputs.tag_name }}" ${{ github.event.inputs.tag_name }}
+              git push origin ${{ github.event.inputs.tag_name }}
 
    
    changelog:
