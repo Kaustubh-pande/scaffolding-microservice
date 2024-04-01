@@ -86,7 +86,7 @@ jobs:
    
    changelog:
       name: Build Changelog
-      needs: update-params-env
+      needs: [update-params-env,fetch-tag]
       runs-on: ubuntu-latest
       outputs:
         changelog: ${{ steps.build_changelog.outputs.changelog }}
