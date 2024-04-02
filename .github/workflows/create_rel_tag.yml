@@ -33,6 +33,7 @@ jobs:
           echo "LATEST_TAG=${{ steps.get_tag.outputs.old_tag_name }}" >> $GITHUB_ENV
           echo "NEW_TAG=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
           echo "Old github: ${{ toJson(github) }}"
+          echo "Branch Name: ${{ github.ref#refs/heads/ }}"
 
         
       - name: Check if new tag already exists
