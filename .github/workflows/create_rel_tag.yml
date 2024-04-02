@@ -32,10 +32,7 @@ jobs:
           echo "Old Tag: ${{ steps.get_tag.outputs.old_tag_name }}"
           echo "LATEST_TAG=${{ steps.get_tag.outputs.old_tag_name }}" >> $GITHUB_ENV
           echo "NEW_TAG=${{ github.event.inputs.tag_name }}" >> $GITHUB_ENV
-          echo "Old event: ${{ github.event }}"
           echo "Old github: ${{ toJson(github) }}"
-          echo "Old job: ${{ toJson(job) }}"
-          echo "Old steps:${{ toJson(steps) }}
 
         
       - name: Check if new tag already exists
