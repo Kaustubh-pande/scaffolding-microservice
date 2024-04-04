@@ -19,7 +19,9 @@ jobs:
       old_tag: ${{ steps.get_tag.outputs.old_tag_name }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
       
       - name: Get latest tag
         id: get_tag
