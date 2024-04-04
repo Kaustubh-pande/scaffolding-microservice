@@ -38,7 +38,7 @@ jobs:
          import sys
          print("hello")
          import subprocess
-         tag_name = "${{ steps.get_tag.outputs.old_tag_name }}"
+         tag_name = "${{ github.event.inputs.tag_name }}"
 
          print("Checking if tag '{}' exists...".format(tag_name))
          
