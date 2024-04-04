@@ -45,7 +45,8 @@ jobs:
             # Check if the tag exists
             command = ['git', 'rev-parse', tag_name]
             print("Executing command:", " ".join(command))
-            subprocess.check_call(command)
+            output = subprocess.check_output(command, stderr=subprocess.STDOUT)
+            print("Command output:", output.decode())
          except subprocess.CalledProcessError as e:
             # If the tag does not exist, print an error message and exit with code 1
             print("Error: Tag '{}' already exists.".format(tag_name), file=sys.stderr)
