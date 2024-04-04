@@ -38,7 +38,7 @@ jobs:
           #   exit 1
           #   echo "::error ::tag exsistsn"
           # fi
-          python3 - <<EOF
+         
           import subprocess
           import sys
 
@@ -49,7 +49,6 @@ jobs:
               # If the tag does not exist, print an error message and exit with code 1
               print("Error: Tag '${{ github.ref }}' already exists.", file=sys.stderr)
               sys.exit(1)
-          EOF
         continue-on-error: false
       - name: print
         id: print
