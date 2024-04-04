@@ -41,17 +41,16 @@ jobs:
          tag_name = "${{ steps.get_tag.outputs.old_tag_name }}"
 
          print("Checking if tag '{}' exists...".format(tag_name))
-         try:
-            # Check if the tag exists
-            command = ['git', 'tag', '-l', tag_name]
-            print("Executing command:", " ".join(command))
-            output = subprocess.check_output(command, stderr=subprocess.STDOUT)
-            print("Command output:", output.decode())
-            if output.strip():
-              print(f"Error: Tag '{tag_name}' already exists.", file=sys.stderr)
-              sys.exit(1)
-            else:
-              print(f"Tag '{tag_name}' does not exist.")
+         
+         command = ['git', 'tag', '-l', tag_name]
+         print("Executing command:", " ".join(command))
+         output = subprocess.check_output(command, stderr=subprocess.STDOUT)
+         print("Command output:", output.decode())
+         if output.strip():
+           print(f"Error: Tag '{tag_name}' already exists.", file=sys.stderr)
+           sys.exit(1)
+         else:
+           print(f"Tag '{tag_name}' does not exist.")
         
          
         shell: python
