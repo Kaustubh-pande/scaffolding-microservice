@@ -32,8 +32,9 @@ jobs:
       - name: Check if tag exists
         id: check_tag
         run: |
+         import sys
          print("hello")
-        
+         sys.exit(1)
          
         shell: python
         continue-on-error: false
