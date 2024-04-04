@@ -35,12 +35,15 @@ jobs:
          import sys
          print("hello")
          import subprocess
+         tag = "${{ steps.get_tag.outputs.old_tag_name }}"
+
+         print("Checking if tag '{}' exists...".format(tag))
          try:
             # Check if the tag exists
-            subprocess.check_call(['git', 'rev-parse', '${{ steps.get_tag.outputs.old_tag_name }}'])
+            subprocess.check_call(['git', 'rev-parse', 'tag'])
          except subprocess.CalledProcessError:
             # If the tag does not exist, print an error message and exit with code 1
-            print("Error: Tag '${{ steps.get_tag.outputs.old_tag_name }}' already exists.", file=sys.stderr)
+            print("Error: Tag '{}' already exists.".format(tag), file=sys.stderr)
             sys.exit(1)
          
         shell: python
