@@ -28,10 +28,11 @@ jobs:
       
       - name: Use latest tag
         run: echo "Latest tag is ${{ steps.get_tag.outputs.old_tag_name }}"
-  
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10' 
       - name: Check if tag exists
         id: check_tag
-        shell: python
         run: |
           # if git rev-parse "${{ github.event.inputs.tag_name }}" >/dev/null 2>&1; then
           #   echo "Error: Tag '${{ github.event.inputs.tag_name }}' already exists."
